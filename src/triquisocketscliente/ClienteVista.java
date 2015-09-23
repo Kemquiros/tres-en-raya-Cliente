@@ -21,12 +21,14 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
     ClienteMenu clienteMenu;
     private ClienteHilo cliente;
     private JButton[][] botones = new JButton[3][3];
-    
+    private char[] letras={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};;
+    private int[] primos =new int[2000];
     
     public ClienteVista(ClienteMenu _clienteMenu) {
+        generarClaves();
         try {
             initComponents();
-
+            
             botones[0][0] = btn11;
             botones[0][1] = btn12;
             botones[0][2] = btn13;
@@ -39,8 +41,39 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
             this.clienteMenu=_clienteMenu;
            
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("Error del carajo");
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 2);
         }
+    }
+    
+    public boolean esPrimo(int numero){
+      int contador = 2;
+      boolean primo=true;
+      while ((primo) && (contador!=numero)){
+        if (numero % contador == 0)
+          primo = false;
+        contador++;
+      }
+      return primo;
+    }
+    
+    void generarClaves(){
+        //Se calculan los 1000 primeros numeros primos
+        System.out.println("Calcula los primos");
+        int num=0;
+        int i=2;
+        while(num<2000){
+            if(esPrimo(i)){
+                primos[num]=i;
+                System.out.print(i +" ");
+                num++;
+            }
+            i++;
+        }
+        //26 Letras
+        //10 Números
+        //36 caracteres en total
+        //letras
     }
 
     /**
@@ -299,7 +332,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
     @Override
     public void run() {
         try {
-            cliente= new ClienteHilo(this);
+            cliente= new ClienteHilo(this,letras,primos);
             Thread hilo = new Thread(cliente);
             hilo.start();
             clienteMenu.conectado=true;
