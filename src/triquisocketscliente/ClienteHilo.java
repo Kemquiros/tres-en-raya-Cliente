@@ -28,8 +28,8 @@ public class ClienteHilo implements Runnable {
     private Socket socketCliente;
     private DataOutputStream out;
     private DataInputStream in;
-    private int puerto = 3020;
-    private String ip = "localhost";
+    private int puerto ;
+    private String ip ;
     private String mensaje;
     private ClienteVista ventanaCliente;
     private JButton[][] arregloBotones;
@@ -43,9 +43,12 @@ public class ClienteHilo implements Runnable {
         try {
             this.ventanaCliente = frame;
             //Cargamos las imagenes de la X y O
-            X = ImageIO.read(getClass().getResource("/jugador/Xpic.png"));
-            O = ImageIO.read(getClass().getResource("/jugador/Opic.png"));
+            X = ImageIO.read(getClass().getResource("/Resources/Xpic.png"));
+            O = ImageIO.read(getClass().getResource("/Resources/Opic.png"));
             //Creamos el socket con el host y el puerto, declaramos los streams de comunicacion
+            ip=frame.clienteMenu.servidor;
+            puerto=frame.clienteMenu.puerto;
+            
             socketCliente = new Socket(ip, puerto);
             in = new DataInputStream(socketCliente.getInputStream());
             out = new DataOutputStream(socketCliente.getOutputStream());
@@ -58,8 +61,12 @@ public class ClienteHilo implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage(), "Error", 2);
+            System.exit(0);
+            //e.printStackTrace();
+            return;
         }
+        frame.setVisible(true);
     }
 
     @Override
@@ -123,21 +130,22 @@ public class ClienteHilo implements Runnable {
     
                     if (XO.equals(mensajes[3])) {
                         JOptionPane.showMessageDialog(ventanaCliente, "¡¡Muy bien, Has ganado!!");
-                        new ClienteVista().setVisible(true);
-                        ventanaCliente.dispose();
+                        //new ClienteVista().setVisible(true);
+                        //ventanaCliente.dispose();
+                        
                     } else if ("EMPATE".equals(mensajes[3])) {
                         JOptionPane.showMessageDialog(ventanaCliente, "¡¡Han quedado empatados!!");
-                        new ClienteVista().setVisible(true);
-                        ventanaCliente.dispose();
+                        //new ClienteVista().setVisible(true);
+                        //ventanaCliente.dispose();
                     } else if (!"NINGUNO".equals(mensajes[3]) && !mensajes[3].equals(mensajes[0])) {
                         JOptionPane.showMessageDialog(ventanaCliente, "¡¡Que mal, Has perdido!!");
-                        new ClienteVista().setVisible(true);
-                        ventanaCliente.dispose();
+                        //new ClienteVista().setVisible(true);
+                        //ventanaCliente.dispose();
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage(), "Error", 2);
         }
     }
 
@@ -153,6 +161,7 @@ public class ClienteHilo implements Runnable {
                 datos += f + ";";
                 datos += c + ";";
                 out.writeUTF(datos);
+                System.out.println(">>"+datos);
             } else {
                 JOptionPane.showMessageDialog(ventanaCliente, "Espera tu turno");
             }
