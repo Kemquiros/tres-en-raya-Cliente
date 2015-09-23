@@ -21,7 +21,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
     ClienteMenu clienteMenu;
     private ClienteHilo cliente;
     private JButton[][] botones = new JButton[3][3];
-    private char[] letras={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};;
+    private char[] letras={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9',':',' '};;
     private int[] primos =new int[2000];
     
     public ClienteVista(ClienteMenu _clienteMenu) {
@@ -332,6 +332,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
     @Override
     public void run() {
         try {
+            System.out.println(">>>>>Ingresa al Run de ClienteVIsta");
             cliente= new ClienteHilo(this,letras,primos);
             Thread hilo = new Thread(cliente);
             hilo.start();
@@ -339,7 +340,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
             clienteMenu.enviarMensaje(">>Conectado");
             
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(clienteMenu, "Error:"+e.getMessage(), "Error", 2);
+            JOptionPane.showMessageDialog(clienteMenu, "Errorrrrr:"+e.getMessage(), "Error", 2);
             return;
         }
         

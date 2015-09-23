@@ -12,6 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -45,11 +46,12 @@ public class ClienteHilo implements Runnable {
         try {
             this.ventanaCliente = frame;
             this.letras=_letras;
-            System.out.println("Hasta aquí  fresco");
+            System.out.println("Llega al hilo cliente");
             try {
                  this.primos= _primos;
+                 System.out.println("Copia el vector de primos");
             } catch (Exception e) {
-                System.out.println("Error: "+e.getMessage());
+                System.out.println("Errorzzzz: "+e.getMessage());
             }
            
             //Cargamos las imagenes de la X y O
@@ -58,10 +60,12 @@ public class ClienteHilo implements Runnable {
             //Creamos el socket con el host y el puerto, declaramos los streams de comunicacion
             ip=frame.clienteMenu.servidor;
             puerto=frame.clienteMenu.puerto;
-            
+            System.out.println("Comienza la creacion de socket");
             socketCliente = new Socket(ip, puerto);
+            System.out.println("Termina la creacion de socket");
             in = new DataInputStream(socketCliente.getInputStream());
             out = new DataOutputStream(socketCliente.getOutputStream());
+            System.out.println("Captura los datos in-out");
             //Tomamos una matriz con los 9 botones del juego
             arregloBotones = this.ventanaCliente.getBotones();
             arregloEventos = new ActionListener[3][3];
@@ -71,7 +75,7 @@ public class ClienteHilo implements Runnable {
                 }
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage(), "Error", 2);
+            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage(), "Errortttt", 2);
             System.out.println("Se sale en la excepción del CLienteHilo " +e.toString());
             System.exit(0);
             //e.printStackTrace();
@@ -83,9 +87,14 @@ public class ClienteHilo implements Runnable {
     @Override
     public void run() {
         try {
+            System.out.println("**Ingresa al run de ClienteHilo");
             mensaje = in.readUTF();
+            System.out.println("Mensaje sin Desenncriptar: "+mensaje);
             String[] splitMensaje = mensaje.split(";");
-            int clave=Integer.parseInt(splitMensaje[splitMensaje.length-1]);
+            int clave=Integer.parseInt(splitMensaje[2]);
+            System.out.println("Clave1: "+clave);
+            String temporal=desencriptacion(clave, mensaje);
+            System.out.println("Mensaje Desencriptado: "+temporal);
             String XO = splitMensaje[0].split(" ")[1];
             XO=desencriptacion(clave, XO);
             ventanaCliente.cambioTexto("Juegas con: " + XO);
@@ -97,6 +106,7 @@ public class ClienteHilo implements Runnable {
                 mensaje = in.readUTF();
                 String[] mensajes = mensaje.split(";");
                 int clave1=Integer.parseInt(mensajes[mensajes.length-1]);
+                System.out.println("Clave1: "+clave1);
                 /*
                  El mensaje esta compuesto por una cadena separada por ; cada separacion representa un dato
                  mensaje[0] : representa X o O 
@@ -106,7 +116,7 @@ public class ClienteHilo implements Runnable {
                  mensaje[4] : clave
                  */
 
-                if (mensajes.length==2) {
+                if (mensajes.length==3) {
                     arregloBotones[0][0].setIcon(null);
                     arregloBotones[0][1].setIcon(null);
                     arregloBotones[0][2].setIcon(null);
@@ -167,7 +177,9 @@ public class ClienteHilo implements Runnable {
                 }
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage(), "Error", 2);
+            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage()+" "+e.getLocalizedMessage()+" "+e.toString(), "ErrorHHHHH", 2);
+            System.out.println(e.getMessage());
+            System.out.println(e.getLocalizedMessage());
         }
     }
 
@@ -205,20 +217,42 @@ public class ClienteHilo implements Runnable {
     
     //---------------Encriptación
     //Encripta un mensaje con una clave
-    String encriptar(int clave, String mensaje){
+    //Encripta un mensaje con una clave
+String encriptar(int clave, String mensaje){
+        System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
+        mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
+        //try {
+            
+        
+        
+        //System.out.println("Ingresa a Descomposición prima con clave:"+clave);
         int god = descomposicionPrima(clave);
+        System.out.println("Clave: "+clave+"  DescomPrima: "+god);
         for(int i=0;i<m.length;i++){
             //El separador  lo deja intacto
             if(m[i]!=';'){
+               System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
                int indice=buscarIndice(m[i]);
+               if(indice==-1){
+                   System.out.println("Error: no se encuentra el indice:"+indice);
+                   
+               }
+                System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
-                indice=(indice+god)%36;
-                m[i]= letras[indice]; 
+               
+                int indice1=((indice+god)%letras.length);
+                //System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
+                m[i]= letras[indice1]; 
             }
             
+        //}
+        System.out.println("Sale de encriptar mensaje:"+Arrays.toString(m));
+        
+        //} catch (Exception e) {
+        //    System.out.println("Herror:"+e.getMessage());
         }
-        return m.toString();
+        return new String(m);
     }
     
     int buscarIndice(char c){        
@@ -249,19 +283,45 @@ public class ClienteHilo implements Runnable {
         return sum;
     }
     String desencriptacion(int clave, String mensaje){
+      
+        System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
+        mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
+        //try {
+            
+        
+        
+        //System.out.println("Ingresa a Descomposición prima con clave:"+clave);
         int god = descomposicionPrima(clave);
+        System.out.println("Clave: "+clave+"  DescomPrima: "+god);
         for(int i=0;i<m.length;i++){
             //El separador  lo deja intacto
             if(m[i]!=';'){
+               System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
                int indice=buscarIndice(m[i]);
+               if(indice==-1){
+                   System.out.println("Error: no se encuentra el indice:"+indice);
+                   
+               }
+                System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
-                indice=(indice-god)%36;
-                m[i]= letras[indice]; 
+                try {
+                     int indice1=(Math.abs(indice-god)%letras.length);
+                System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
+                m[i]= letras[indice1];
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "nada que hacer");
+                }
+                
             }
             
+        //}
+        System.out.println("Sale de encriptar mensaje:"+Arrays.toString(m));
+        
+        //} catch (Exception e) {
+        //    System.out.println("Herror:"+e.getMessage());
         }
-        return m.toString();
+        return new String(m);
     }
     //Genera numero aleatorio no primo
     int generarClave(){
