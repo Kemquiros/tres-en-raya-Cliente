@@ -93,13 +93,16 @@ public class ClienteHilo implements Runnable {
             String[] splitMensaje = mensaje.split(";");
             int clave=Integer.parseInt(splitMensaje[2]);
             System.out.println("Clave1: "+clave);
-            String temporal=desencriptacion(clave, mensaje);
+            String temporal=desencriptacion(clave, splitMensaje[0]+";"+splitMensaje[1]);
             System.out.println("Mensaje Desencriptado: "+temporal);
+            splitMensaje=temporal.split(";");
             String XO = splitMensaje[0].split(" ")[1];
-            XO=desencriptacion(clave, XO);
-            ventanaCliente.cambioTexto("Juegas con: " + XO);
-            splitMensaje[1]=desencriptacion(clave,splitMensaje[1]);
+            System.out.println("Simbolo: "+XO);
+            //XO=desencriptacion(clave, XO);
+            ventanaCliente.cambioTexto("Juegas con figura: " + XO);
+            //splitMensaje[1]=desencriptacion(clave,splitMensaje[1]);
             turno = Boolean.valueOf(splitMensaje[1]);
+            System.out.println("Turno: "+turno);
 
            while (true) {
                 //Recibimos el mensaje
@@ -196,7 +199,7 @@ public class ClienteHilo implements Runnable {
                 datos += f + ";";
                 datos += c + ";";
                 System.out.println(">>Sin encriptar: "+datos);
-                encriptar(claveX, datos);
+                datos=encriptar(claveX, datos);
                 out.writeUTF(datos+claveX);
                 System.out.println(">>Encriptados: "+datos);
             } else {
@@ -256,9 +259,12 @@ String encriptar(int clave, String mensaje){
     }
     
     int buscarIndice(char c){        
+        System.out.println("Busca: "+c);
         for(int i=0;i<letras.length;i++){
             //Encuentra el indice
+            System.out.println("Compara "+letras[i]+" con "+c);
             if(letras[i]==c){
+                System.out.println(">>  Encuentra: "+letras[i]);
                 return i;
             }
         }
@@ -306,11 +312,33 @@ String encriptar(int clave, String mensaje){
                 System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
                 try {
-                     int indice1=(Math.abs(indice-god)%letras.length);
-                System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
-                m[i]= letras[indice1];
+                     int indice1=((indice+(letras.length-god))%letras.length);
+                     if(indice1<0){
+                         System.out.println("indice1 es negativo:"+indice1);
+                         indice1=letras.length-indice1;
+                     }
+                     if(indice1>letras.length){
+                         //System.out.println("Indice"++">");
+                         indice1=indice1%letras.length;
+                     }
+                    
+                     System.out.println("Indice 1: "+indice1+"  tamaño letras: "+letras.length);
+                     try {
+                        System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
+                        
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, "Error mensaje: "+e.toString());
+                    }
+                     try {
+                        m[i]= letras[indice1];
+                    } catch (Exception e) {
+                         JOptionPane.showMessageDialog(null, "Ultimo Error: "+e.toString());
+                    }
+                    
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "nada que hacer");
+                    JOptionPane.showMessageDialog(null, "nada que hacer"+e.toString());
+                    System.out.println(e.getMessage());
+                    System.out.println(e.toString());
                 }
                 
             }
