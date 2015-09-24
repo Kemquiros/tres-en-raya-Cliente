@@ -1,6 +1,7 @@
 package triquisocketscliente;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.io.File;
 import javax.imageio.ImageIO;
@@ -39,6 +40,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
             botones[2][1] = btn32;
             botones[2][2] = btn33;
             this.clienteMenu=_clienteMenu;
+            jLabelJugador.setText(clienteMenu.nombreCliente);
            
         } catch (Exception ex) {
             System.out.println("Error del carajo");
@@ -85,6 +87,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lbTurno1 = new javax.swing.JLabel();
         btn11 = new javax.swing.JButton();
         btn13 = new javax.swing.JButton();
         btn12 = new javax.swing.JButton();
@@ -97,12 +100,21 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
         btnReiniciar = new javax.swing.JButton();
         lbTurno = new javax.swing.JLabel();
         lbTitulo = new javax.swing.JLabel();
+        jLabelJugador = new javax.swing.JLabel();
+
+        lbTurno1.setFont(new java.awt.Font("Purisa", 1, 18)); // NOI18N
+        lbTurno1.setText("Tu turno: ");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Triqui UdeA");
         setBackground(new java.awt.Color(195, 191, 191));
         setForeground(java.awt.Color.lightGray);
         setResizable(false);
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                formMouseMoved(evt);
+            }
+        });
 
         btn11.setBackground(new java.awt.Color(67, 118, 153));
         btn11.addActionListener(new java.awt.event.ActionListener() {
@@ -190,6 +202,9 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
         lbTitulo.setMinimumSize(new java.awt.Dimension(50, 50));
         lbTitulo.setPreferredSize(new java.awt.Dimension(50, 50));
 
+        jLabelJugador.setFont(new java.awt.Font("Purisa", 1, 18)); // NOI18N
+        jLabelJugador.setText("jLabel1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -206,7 +221,8 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btn12, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btn22, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn32, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(btn32, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelJugador, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(lbTurno))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -230,7 +246,9 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lbTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabelJugador)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btn12, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn13, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -245,7 +263,7 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
                     .addComponent(btn31, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn32, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn33, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnReiniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbTurno))
@@ -295,6 +313,15 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
         cliente.reiniciar();
     }//GEN-LAST:event_btnReiniciarActionPerformed
 
+    private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
+        if(cliente.isTurno()){
+            lbTitulo.setBackground(Color.green);
+        }
+        else{
+           lbTitulo.setBackground(Color.red); 
+        }
+    }//GEN-LAST:event_formMouseMoved
+
     /**
      * @param args the command line arguments
      */
@@ -312,8 +339,10 @@ public class ClienteVista extends javax.swing.JFrame implements Runnable {
     private javax.swing.JButton btn32;
     private javax.swing.JButton btn33;
     private javax.swing.JButton btnReiniciar;
+    private javax.swing.JLabel jLabelJugador;
     private javax.swing.JLabel lbTitulo;
     private javax.swing.JLabel lbTurno;
+    private javax.swing.JLabel lbTurno1;
     // End of variables declaration//GEN-END:variables
 
     

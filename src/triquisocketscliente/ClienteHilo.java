@@ -87,29 +87,47 @@ public class ClienteHilo implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("**Ingresa al run de ClienteHilo");
+            //--try {
+            //System.out.println("**Ingresa al run de ClienteHilo");
             mensaje = in.readUTF();
-            System.out.println("Mensaje sin Desenncriptar: "+mensaje);
+        } catch (IOException ex) {
+            Logger.getLogger(ClienteHilo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            //System.out.println("Mensaje Encriptado inicial: "+mensaje);
             String[] splitMensaje = mensaje.split(";");
             int clave=Integer.parseInt(splitMensaje[2]);
-            System.out.println("Clave1: "+clave);
+            //System.out.println("Clave1: "+clave);
             String temporal=desencriptacion(clave, splitMensaje[0]+";"+splitMensaje[1]);
-            System.out.println("Mensaje Desencriptado: "+temporal);
+            //System.out.println("Mensaje Desencriptado inicial: "+temporal);
             splitMensaje=temporal.split(";");
             String XO = splitMensaje[0].split(" ")[1];
+            System.out.println("-------Inicio partida-------");
             System.out.println("Simbolo: "+XO);
+            
             //XO=desencriptacion(clave, XO);
             ventanaCliente.cambioTexto("Juegas con figura: " + XO);
             //splitMensaje[1]=desencriptacion(clave,splitMensaje[1]);
             turno = Boolean.valueOf(splitMensaje[1]);
             System.out.println("Turno: "+turno);
+            System.out.println("-------Inicio partida-------");
 
            while (true) {
+            try {
                 //Recibimos el mensaje
+                System.out.println(">>>>>>>>>>");
+                System.out.println("Espera mensaje del servidor");                    
+                System.out.println(">>>>>>>>>>");
                 mensaje = in.readUTF();
+            } catch (IOException ex) {
+                System.out.println( (ClienteHilo.class.getName()));
+            }
                 String[] mensajes = mensaje.split(";");
-                int clave1=Integer.parseInt(mensajes[mensajes.length-1]);
-                System.out.println("Clave1: "+clave1);
+                int numeroMensajes=mensajes.length;
+                for(int i=0;i<numeroMensajes;i++){
+                    System.out.println("Mensaje "+i+": "+mensajes[i]);
+                }
+                //int clave1=Integer.parseInt(mensajes[mensajes.length-1]);
+                //System.out.println("Clave1: "+clave1);
                 /*
                  El mensaje esta compuesto por una cadena separada por ; cada separacion representa un dato
                  mensaje[0] : representa X o O 
@@ -164,26 +182,33 @@ public class ClienteHilo implements Runnable {
                     turno = !turno;
     
                     if (XO.equals(mensajes[3])) {
-                        JOptionPane.showMessageDialog(ventanaCliente, "¡¡Muy bien, Has ganado!!");
+                        JOptionPane.showMessageDialog(ventanaCliente, "gana");
+                        reiniciar();
                         //new ClienteVista().setVisible(true);
                         //ventanaCliente.dispose();
                         
-                    } else if ("EMPATE".equals(mensajes[3])) {
-                        JOptionPane.showMessageDialog(ventanaCliente, "¡¡Han quedado empatados!!");
+                    } else if ("empata".equals(mensajes[3])) {
+                        JOptionPane.showMessageDialog(ventanaCliente, "empata");
                         //new ClienteVista().setVisible(true);
                         //ventanaCliente.dispose();
-                    } else if (!"NINGUNO".equals(mensajes[3]) && !mensajes[3].equals(mensajes[0])) {
-                        JOptionPane.showMessageDialog(ventanaCliente, "¡¡Que mal, Has perdido!!");
+                        reiniciar();
+                    } else if (!"ninguno".equals(mensajes[3]) && !mensajes[3].equals(mensajes[0])) {
+                        JOptionPane.showMessageDialog(ventanaCliente, "pierde");
                         //new ClienteVista().setVisible(true);
                         //ventanaCliente.dispose();
+                        reiniciar();
                     }
                 }
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(ventanaCliente, e.getMessage()+" "+e.getLocalizedMessage()+" "+e.toString(), "ErrorHHHHH", 2);
-            System.out.println(e.getMessage());
-            System.out.println(e.getLocalizedMessage());
-        }
+        //} catch (Exception e) {
+        //    JOptionPane.showMessageDialog(ventanaCliente, e.getMessage()+" "+e.getLocalizedMessage()+" "+e.toString(), "ErrorHHHHH", 2);
+         //   System.out.println(e.getMessage());
+         //   System.out.println(e.getLocalizedMessage());
+        //}
+    }
+
+    public boolean isTurno() {
+        return turno;
     }
 
     //Funcion sirve para enviar la jugada al servidor
@@ -198,21 +223,27 @@ public class ClienteHilo implements Runnable {
                 String datos = "";
                 datos += f + ";";
                 datos += c + ";";
-                System.out.println(">>Sin encriptar: "+datos);
+                System.out.println("*---------------------------------Turno------------------------*");
+                //System.out.println("**Sin encriptar: "+datos);
                 datos=encriptar(claveX, datos);
                 out.writeUTF(datos+claveX);
-                System.out.println(">>Encriptados: "+datos);
+                //System.out.println("**Encriptados: "+datos);
+                System.out.println("*-----------------------------------Turno----------------------*");
             } else {
                 JOptionPane.showMessageDialog(ventanaCliente, "Espera tu turno");
+                System.out.println("+++El jugador intenta acceder a un turno ajeno+++");
             }
         } catch (Exception e) {
+            JOptionPane.showMessageDialog(ventanaCliente, "Nos destruiran a todos: "+e.toString());
             e.printStackTrace();
         }
     }
 
     public void reiniciar() {
         try {
-            out.writeUTF("Reiniciar");
+            int clave=generarClave();
+            String mensaje=encriptar(clave,"Reiniciar");
+            out.writeUTF(mensaje+";"+clave);
         } catch (IOException ex) {
             Logger.getLogger(ClienteHilo.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -222,7 +253,8 @@ public class ClienteHilo implements Runnable {
     //Encripta un mensaje con una clave
     //Encripta un mensaje con una clave
 String encriptar(int clave, String mensaje){
-        System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
+        System.out.println("--------------Encriptación-----------");
+        System.out.println(">>Ingresa a encriptar mensaje: "+mensaje);
         mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
         //try {
@@ -231,17 +263,17 @@ String encriptar(int clave, String mensaje){
         
         //System.out.println("Ingresa a Descomposición prima con clave:"+clave);
         int god = descomposicionPrima(clave);
-        System.out.println("Clave: "+clave+"  DescomPrima: "+god);
+        //System.out.println("Clave: "+clave+"  DescomPrima: "+god);
         for(int i=0;i<m.length;i++){
             //El separador  lo deja intacto
             if(m[i]!=';'){
-               System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
+              // System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
                int indice=buscarIndice(m[i]);
                if(indice==-1){
                    System.out.println("Error: no se encuentra el indice:"+indice);
                    
                }
-                System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
+                //System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
                
                 int indice1=((indice+god)%letras.length);
@@ -250,21 +282,23 @@ String encriptar(int clave, String mensaje){
             }
             
         //}
-        System.out.println("Sale de encriptar mensaje:"+Arrays.toString(m));
+        
         
         //} catch (Exception e) {
         //    System.out.println("Herror:"+e.getMessage());
         }
+        System.out.println(">>Mensaje encriptado:"+new String(m));
+        System.out.println("--------------Encriptación-----------");
         return new String(m);
     }
     
     int buscarIndice(char c){        
-        System.out.println("Busca: "+c);
+        //System.out.println("Busca: "+c);
         for(int i=0;i<letras.length;i++){
             //Encuentra el indice
-            System.out.println("Compara "+letras[i]+" con "+c);
+            //System.out.println("Compara "+letras[i]+" con "+c);
             if(letras[i]==c){
-                System.out.println(">>  Encuentra: "+letras[i]);
+                //System.out.println(">>  Encuentra: "+letras[i]);
                 return i;
             }
         }
@@ -289,8 +323,8 @@ String encriptar(int clave, String mensaje){
         return sum;
     }
     String desencriptacion(int clave, String mensaje){
-      
-        System.out.println("Ingresa a encriptar ServidorHilo mensaje:"+mensaje);
+        System.out.println("--------------Desencriptación-----------");
+        System.out.println("<<Ingresa a desencriptar mensaje:"+mensaje);
         mensaje=mensaje.toLowerCase();
         char[] m = mensaje.toCharArray();
         //try {
@@ -299,36 +333,36 @@ String encriptar(int clave, String mensaje){
         
         //System.out.println("Ingresa a Descomposición prima con clave:"+clave);
         int god = descomposicionPrima(clave);
-        System.out.println("Clave: "+clave+"  DescomPrima: "+god);
+        //System.out.println("Clave: "+clave+"  DescomPrima: "+god);
         for(int i=0;i<m.length;i++){
             //El separador  lo deja intacto
             if(m[i]!=';'){
-               System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
+               //System.out.println("-Indice original: "+i + " Caracter:"+m[i]);
                int indice=buscarIndice(m[i]);
                if(indice==-1){
                    System.out.println("Error: no se encuentra el indice:"+indice);
                    
                }
-                System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
+               // System.out.print("  Indice busqueda: "+indice+" Caracter Busqueda: "+letras[indice]);
                 //Porque hay 36 caracteres
                 try {
                      int indice1=((indice+(letras.length-god))%letras.length);
                      if(indice1<0){
-                         System.out.println("indice1 es negativo:"+indice1);
-                         indice1=letras.length-indice1;
+                         //System.out.println("indice1 es negativo:"+indice1);
+                         indice1=letras.length+indice1;
                      }
                      if(indice1>letras.length){
                          //System.out.println("Indice"++">");
                          indice1=indice1%letras.length;
                      }
                     
-                     System.out.println("Indice 1: "+indice1+"  tamaño letras: "+letras.length);
+                     /*System.out.println("Indice 1: "+indice1+"  tamaño letras: "+letras.length);
                      try {
                         System.out.println(" Nuevo indice: "+indice1+" Nuevo Caracter:"+letras[indice1]+" god:"+god+" i+g:"+(indice+god)+" leng:"+letras.length+" mod:" +((indice+god)%letras.length));
                         
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, "Error mensaje: "+e.toString());
-                    }
+                    }*/
                      try {
                         m[i]= letras[indice1];
                     } catch (Exception e) {
@@ -336,7 +370,7 @@ String encriptar(int clave, String mensaje){
                     }
                     
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "nada que hacer"+e.toString());
+                    JOptionPane.showMessageDialog(null, "Nada que hacer"+e.toString());
                     System.out.println(e.getMessage());
                     System.out.println(e.toString());
                 }
@@ -344,11 +378,14 @@ String encriptar(int clave, String mensaje){
             }
             
         //}
-        System.out.println("Sale de encriptar mensaje:"+Arrays.toString(m));
+        
         
         //} catch (Exception e) {
         //    System.out.println("Herror:"+e.getMessage());
         }
+        System.out.println("<<Mensaje desencriptado:"+new String(m));
+       
+        System.out.println("--------------Desencriptación-----------");
         return new String(m);
     }
     //Genera numero aleatorio no primo
